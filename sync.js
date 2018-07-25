@@ -1,8 +1,16 @@
 let _ = require('lodash');
 let fs = require('fs');
+let minimist = require('minimist');
 
-let app = 'zapf-connect';
-let outputDir = './i18n';
+let defaultApp = 'zapf-connect';
+let defaultOutputDir = './i18n';
+
+let argv = minimist(process.argv.slice(2));
+
+let outputDir = argv['output'] || defaultOutputDir;
+let app = argv['app'] || defaultApp;
+
+console.log('\nSyncing translation tokens for app '+ app + '\n');
 
 function getTranslationJSON(lang) {
     let langPath = '../'+app+'/src/assets/i18n/'+lang+'.json';
@@ -51,7 +59,10 @@ availableLanguages.forEach((newLang) => {
     let mergedTranslation = _.mergeWith(newTranslation, baseTranslation, customizer);
     let content = JSON.stringify(mergedTranslation, null, 4);
 
-    fs.writeFileSync(outputDir+'/'+newLang+'.json', content, 'utf-8');
+    let path = outputDir+'/'+newLang+'.json';
+    fs.writeFileSync(path, content, 'utf-8');
+
+    console.log('Merged "' + baseLang + '" -> "' + newLang + '" in file ' + path);
 });
 
 
